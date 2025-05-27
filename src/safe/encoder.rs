@@ -6,7 +6,6 @@
 
 use std::{ffi::c_void, ptr, sync::Arc};
 
-//use cudarc::driver::CudaDevice;
 use cudarc::driver::CudaContext;
 
 use super::{api::ENCODE_API, result::EncodeError, session::Session};
@@ -77,10 +76,10 @@ impl Encoder {
     /// # Examples
     ///
     /// ```
-    /// # use cudarc::driver::CudaDevice;
+    /// # use cudarc::driver::CudaContext;
     /// # use nvidia_video_codec_sdk::Encoder;
-    /// let cuda_device = CudaDevice::new(0).unwrap();
-    /// let encoder = Encoder::initialize_with_cuda(cuda_device).unwrap();
+    /// let cuda_ctx = CudaContext::new(0).unwrap();
+    /// let encoder = Encoder::initialize_with_cuda(cuda_ctx).unwrap();
     /// ```
     pub fn initialize_with_cuda(cuda_ctx: Arc<CudaContext>) -> Result<Self, EncodeError> {
         let mut encoder = ptr::null_mut();
@@ -127,10 +126,10 @@ impl Encoder {
     /// # Examples
     ///
     /// ```
-    /// # use cudarc::driver::CudaDevice;
+    /// # use cudarc::driver::CudaContext;
     /// # use nvidia_video_codec_sdk::{sys::nvEncodeAPI::NV_ENC_CODEC_H264_GUID, Encoder};
-    /// # let cuda_device = CudaDevice::new(0).unwrap();
-    /// let encoder = Encoder::initialize_with_cuda(cuda_device).unwrap();
+    /// # let cuda_ctx = CudaContext::new(0).unwrap();
+    /// let encoder = Encoder::initialize_with_cuda(cuda_ctx).unwrap();
     /// let encode_guids = encoder.get_encode_guids().unwrap();
     /// // Confirm that this machine support encoding to H.264.
     /// assert!(encode_guids.contains(&NV_ENC_CODEC_H264_GUID));
@@ -172,13 +171,13 @@ impl Encoder {
     /// # Examples
     ///
     /// ```
-    /// # use cudarc::driver::CudaDevice;
+    /// # use cudarc::driver::CudaContext;
     /// # use nvidia_video_codec_sdk::{
     /// #     sys::nvEncodeAPI::{NV_ENC_CODEC_H264_GUID, NV_ENC_PRESET_P1_GUID},
     /// #     Encoder,
     /// # };
-    /// # let cuda_device = CudaDevice::new(0).unwrap();
-    /// let encoder = Encoder::initialize_with_cuda(cuda_device).unwrap();
+    /// # let cuda_ctx = CudaContext::new(0).unwrap();
+    /// let encoder = Encoder::initialize_with_cuda(cuda_ctx).unwrap();
     ///
     /// //* Check if H.264 encoding is supported. *//
     /// # let encode_guids = encoder.get_encode_guids().unwrap();
@@ -226,13 +225,13 @@ impl Encoder {
     /// # Examples
     ///
     /// ```
-    /// # use cudarc::driver::CudaDevice;
+    /// # use cudarc::driver::CudaContext;
     /// # use nvidia_video_codec_sdk::{
     /// #     sys::nvEncodeAPI::{NV_ENC_CODEC_H264_GUID, NV_ENC_H264_PROFILE_HIGH_GUID},
     /// #     Encoder,
     /// # };
-    /// # let cuda_device = CudaDevice::new(0).unwrap();
-    /// let encoder = Encoder::initialize_with_cuda(cuda_device).unwrap();
+    /// # let cuda_ctx = CudaContext::new(0).unwrap();
+    /// let encoder = Encoder::initialize_with_cuda(cuda_ctx).unwrap();
     ///
     /// //* Check if H.264 encoding is supported. *//
     /// # let encode_guids = encoder.get_encode_guids().unwrap();
@@ -282,13 +281,13 @@ impl Encoder {
     /// # Examples
     ///
     /// ```
-    /// # use cudarc::driver::CudaDevice;
+    /// # use cudarc::driver::CudaContext;
     /// # use nvidia_video_codec_sdk::{
     /// #     sys::nvEncodeAPI::{NV_ENC_BUFFER_FORMAT, NV_ENC_CODEC_H264_GUID},
     /// #     Encoder,
     /// # };
-    /// # let cuda_device = CudaDevice::new(0).unwrap();
-    /// let encoder = Encoder::initialize_with_cuda(cuda_device).unwrap();
+    /// # let cuda_ctx = CudaContext::new(0).unwrap();
+    /// let encoder = Encoder::initialize_with_cuda(cuda_ctx).unwrap();
     ///
     /// //* Check if H.264 encoding is supported. *//
     /// # let encode_guids = encoder.get_encode_guids().unwrap();
@@ -345,7 +344,7 @@ impl Encoder {
     /// # Examples
     ///
     /// ```
-    /// # use cudarc::driver::CudaDevice;
+    /// # use cudarc::driver::CudaContext;
     /// # use nvidia_video_codec_sdk::{
     /// #     sys::nvEncodeAPI::{
     /// #         NV_ENC_CODEC_H264_GUID,
@@ -354,8 +353,8 @@ impl Encoder {
     /// #     },
     /// #     Encoder,
     /// # };
-    /// # let cuda_device = CudaDevice::new(0).unwrap();
-    /// let encoder = Encoder::initialize_with_cuda(cuda_device).unwrap();
+    /// # let cuda_ctx = CudaContext::new(0).unwrap();
+    /// let encoder = Encoder::initialize_with_cuda(cuda_ctx).unwrap();
     ///
     /// //* Check if H.264 encoding and the P1 preset (highest performance) are supported. *//
     /// # let encode_guids = encoder.get_encode_guids().unwrap();
@@ -415,7 +414,7 @@ impl Encoder {
     /// # Examples
     ///
     /// ```
-    /// # use cudarc::driver::CudaDevice;
+    /// # use cudarc::driver::CudaContext;
     /// # use nvidia_video_codec_sdk::{
     /// #     sys::nvEncodeAPI::{
     /// #         NV_ENC_BUFFER_FORMAT::NV_ENC_BUFFER_FORMAT_ARGB,
@@ -424,8 +423,8 @@ impl Encoder {
     /// #     },
     /// #     Encoder,
     /// # };
-    /// # let cuda_device = CudaDevice::new(0).unwrap();
-    /// let encoder = Encoder::initialize_with_cuda(cuda_device).unwrap();
+    /// # let cuda_ctx = CudaContext::new(0).unwrap();
+    /// let encoder = Encoder::initialize_with_cuda(cuda_ctx).unwrap();
     ///
     /// //* Check if `NV_ENC_CODEC_H264_GUID` is supported. *//
     /// # let encode_guids = encoder.get_encode_guids().unwrap();
