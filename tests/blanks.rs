@@ -1,28 +1,19 @@
 use std::{
-    collections::VecDeque,
-    fs::OpenOptions,
-    io::Write,
-    path::Path,
-    sync::Arc,
-    thread,
+    collections::VecDeque, fs::OpenOptions, io::Write, path::Path, sync::Arc, thread,
     time::Duration,
 };
 
-use cudarc::driver::CudaDevice;
+//use cudarc::driver::CudaDevice;
+use cudarc::driver::CudaContext;
 use nvidia_video_codec_sdk::{
     sys::nvEncodeAPI::{
-        GUID,
-        NV_ENC_BUFFER_FORMAT,
-        NV_ENC_CODEC_H264_GUID,
-        NV_ENC_INITIALIZE_PARAMS,
+        GUID, NV_ENC_BUFFER_FORMAT, NV_ENC_CODEC_H264_GUID, NV_ENC_INITIALIZE_PARAMS,
     },
-    EncodeError,
-    Encoder,
-    ErrorKind,
+    EncodeError, Encoder, ErrorKind,
 };
 
 fn encode_blanks<P: AsRef<Path>>(
-    cuda_device: Arc<CudaDevice>,
+    cuda_device: Arc<CudaContext>,
     file_path: Option<P>,
 ) -> Result<(), EncodeError> {
     const FRAMES: usize = 128;
@@ -136,13 +127,17 @@ fn encode_blanks<P: AsRef<Path>>(
 
 #[test]
 fn encoder_works() {
-    encode_blanks::<&str>(CudaDevice::new(0).expect("CUDA should be installed."), None).unwrap();
+    encode_blanks::<&str>(
+        CudaContext::new(0).expect("CUDA should be installed."),
+        None,
+    )
+    .unwrap();
 }
 
 #[test]
 fn encode_in_parallel() {
     std::thread::scope(|scope| {
-        let cuda_device = CudaDevice::new(0).expect("CUDA should be installed.");
+        let cuda_device = CudaContext::new(0).expect("CUDA should be installed.");
         for _ in 0..4 {
             let thread_cuda_device = cuda_device.clone();
             scope.spawn(|| encode_blanks::<&str>(thread_cuda_device, None).unwrap());

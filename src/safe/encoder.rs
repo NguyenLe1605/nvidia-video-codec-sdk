@@ -6,25 +6,18 @@
 
 use std::{ffi::c_void, ptr, sync::Arc};
 
-use cudarc::driver::CudaDevice;
+//use cudarc::driver::CudaDevice;
+use cudarc::driver::CudaContext;
 
 use super::{api::ENCODE_API, result::EncodeError, session::Session};
 use crate::sys::nvEncodeAPI::{
-    GUID,
-    NVENCAPI_VERSION,
-    NV_ENC_BUFFER_FORMAT,
-    NV_ENC_CONFIG,
-    NV_ENC_CONFIG_VER,
-    NV_ENC_DEVICE_TYPE,
-    NV_ENC_INITIALIZE_PARAMS,
-    NV_ENC_OPEN_ENCODE_SESSION_EX_PARAMS,
-    NV_ENC_OPEN_ENCODE_SESSION_EX_PARAMS_VER,
-    NV_ENC_PRESET_CONFIG,
-    NV_ENC_PRESET_CONFIG_VER,
+    GUID, NVENCAPI_VERSION, NV_ENC_BUFFER_FORMAT, NV_ENC_CONFIG, NV_ENC_CONFIG_VER,
+    NV_ENC_DEVICE_TYPE, NV_ENC_INITIALIZE_PARAMS, NV_ENC_OPEN_ENCODE_SESSION_EX_PARAMS,
+    NV_ENC_OPEN_ENCODE_SESSION_EX_PARAMS_VER, NV_ENC_PRESET_CONFIG, NV_ENC_PRESET_CONFIG_VER,
     NV_ENC_TUNING_INFO,
 };
 
-type Device = Arc<CudaDevice>;
+//type Device = Arc<CudaContext>;
 
 /// Entrypoint for the Encoder API.
 ///
@@ -50,7 +43,7 @@ type Device = Arc<CudaDevice>;
 pub struct Encoder {
     pub(crate) ptr: *mut c_void,
     // Used to make sure that CudaDevice stays alive while the Encoder does
-    _device: Device,
+    pub(crate) ctx: Arc<CudaContext>,
 }
 
 /// The client must flush the encoder before freeing any resources.
@@ -89,14 +82,14 @@ impl Encoder {
     /// let cuda_device = CudaDevice::new(0).unwrap();
     /// let encoder = Encoder::initialize_with_cuda(cuda_device).unwrap();
     /// ```
-    pub fn initialize_with_cuda(cuda_device: Arc<CudaDevice>) -> Result<Self, EncodeError> {
+    pub fn initialize_with_cuda(cuda_ctx: Arc<CudaContext>) -> Result<Self, EncodeError> {
         let mut encoder = ptr::null_mut();
         let mut session_params = NV_ENC_OPEN_ENCODE_SESSION_EX_PARAMS {
             version: NV_ENC_OPEN_ENCODE_SESSION_EX_PARAMS_VER,
             deviceType: NV_ENC_DEVICE_TYPE::NV_ENC_DEVICE_TYPE_CUDA,
             apiVersion: NVENCAPI_VERSION,
             // Pass the CUDA Context as the device.
-            device: (*cuda_device.cu_primary_ctx()).cast::<c_void>(),
+            device: (cuda_ctx.cu_ctx()).cast::<c_void>(),
             ..Default::default()
         };
 
@@ -111,7 +104,7 @@ impl Encoder {
 
         Ok(Self {
             ptr: encoder,
-            _device: cuda_device,
+            ctx: cuda_ctx,
         })
     }
 

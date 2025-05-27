@@ -56,9 +56,9 @@ const LIBRARY_CANDIDATES: [&str; 11] = [
 ];
 
 fn main() {
-    if cfg!(feature = "ci-check") {
-        return;
-    }
+    // if cfg!(feature = "ci-check") {
+    //     return;
+    // }
     rerun_if_changed();
 
     // Link to libraries.

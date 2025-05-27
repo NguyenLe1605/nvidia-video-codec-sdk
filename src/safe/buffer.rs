@@ -6,20 +6,11 @@ use cudarc::driver::{DevicePtr, MappedBuffer};
 
 use super::{api::ENCODE_API, encoder::Encoder, result::EncodeError, session::Session};
 use crate::sys::nvEncodeAPI::{
-    NV_ENC_BUFFER_FORMAT,
-    NV_ENC_CREATE_BITSTREAM_BUFFER,
-    NV_ENC_CREATE_BITSTREAM_BUFFER_VER,
-    NV_ENC_CREATE_INPUT_BUFFER,
-    NV_ENC_CREATE_INPUT_BUFFER_VER,
-    NV_ENC_INPUT_RESOURCE_TYPE,
-    NV_ENC_LOCK_BITSTREAM,
-    NV_ENC_LOCK_BITSTREAM_VER,
-    NV_ENC_LOCK_INPUT_BUFFER,
-    NV_ENC_LOCK_INPUT_BUFFER_VER,
-    NV_ENC_MAP_INPUT_RESOURCE,
-    NV_ENC_MAP_INPUT_RESOURCE_VER,
-    NV_ENC_PIC_TYPE,
-    NV_ENC_REGISTER_RESOURCE,
+    NV_ENC_BUFFER_FORMAT, NV_ENC_CREATE_BITSTREAM_BUFFER, NV_ENC_CREATE_BITSTREAM_BUFFER_VER,
+    NV_ENC_CREATE_INPUT_BUFFER, NV_ENC_CREATE_INPUT_BUFFER_VER, NV_ENC_INPUT_RESOURCE_TYPE,
+    NV_ENC_LOCK_BITSTREAM, NV_ENC_LOCK_BITSTREAM_VER, NV_ENC_LOCK_INPUT_BUFFER,
+    NV_ENC_LOCK_INPUT_BUFFER_VER, NV_ENC_MAP_INPUT_RESOURCE, NV_ENC_MAP_INPUT_RESOURCE_VER,
+    NV_ENC_PIC_TYPE, NV_ENC_REGISTER_RESOURCE,
 };
 
 /// If a type implements this trait it means it is a valid input buffer
@@ -200,7 +191,8 @@ impl Session {
         pitch: u32,
         mapped_buffer: MappedBuffer,
     ) -> Result<RegisteredResource<MappedBuffer>, EncodeError> {
-        let device_ptr = *mapped_buffer.device_ptr();
+        let stream = self.encoder.ctx.default_stream();
+        let (device_ptr, _) = mapped_buffer.device_ptr(&stream);
         self.register_generic_resource(
             mapped_buffer,
             NV_ENC_INPUT_RESOURCE_TYPE::NV_ENC_INPUT_RESOURCE_TYPE_CUDADEVICEPTR,
