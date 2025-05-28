@@ -4,11 +4,11 @@ use std::{
     sync::Arc,
 };
 
-use cudarc::driver::CudaDevice;
+use cudarc::driver::CudaContext;
 use nvidia_video_codec_sdk::{
     sys::nvEncodeAPI::{
         NV_ENC_BUFFER_FORMAT::NV_ENC_BUFFER_FORMAT_ARGB, NV_ENC_CODEC_H264_GUID,
-        NV_ENC_H264_PROFILE_HIGH_GUID, NV_ENC_INITIALIZE_PARAMS, NV_ENC_PRESET_P5_GUID,
+        NV_ENC_H264_PROFILE_HIGH_GUID, NV_ENC_INITIALIZE_PARAMS, NV_ENC_PRESET_P7_GUID,
         NV_ENC_TUNING_INFO,
     },
     Encoder,
@@ -139,9 +139,9 @@ fn main() {
     let (vulkan_device, memory_type_index) = initialize_vulkan();
 
     // Create a new CudaDevice to interact with cuda.
-    let cuda_device = CudaDevice::new(0).expect("Cuda should be installed correctly.");
+    let cuda_ctx = CudaContext::new(0).expect("Cuda should be installed correctly.");
 
-    let encoder = Encoder::initialize_with_cuda(cuda_device.clone())
+    let encoder = Encoder::initialize_with_cuda(cuda_ctx.clone())
         .expect("NVIDIA Video Codec SDK should be installed correctly.");
 
     // Get all encode guids supported by the GPU.
@@ -155,7 +155,7 @@ fn main() {
     let preset_guids = encoder
         .get_preset_guids(encode_guid)
         .expect("The encoder should have a preset for H.264.");
-    let preset_guid = NV_ENC_PRESET_P5_GUID;
+    let preset_guid = NV_ENC_PRESET_P7_GUID;
     assert!(preset_guids.contains(&preset_guid));
 
     // Get available profiles based on encode guid.
@@ -174,6 +174,7 @@ fn main() {
 
     // Get the preset config based on the selected encode guid (H.264), selected
     // preset (`LOW_LATENCY`), and tuning info (`ULTRA_LOW_LATENCY`).
+    let tuning_info = NV_ENC_TUNING_INFO::NV_ENC_TUNING_INFO_ULTRA_LOW_LATENCY;
     let mut preset_config = encoder
         .get_preset_config(
             encode_guid,
@@ -186,10 +187,12 @@ fn main() {
     // we generated before.
     let mut initialize_params = NV_ENC_INITIALIZE_PARAMS::new(encode_guid, WIDTH, HEIGHT);
     initialize_params
+        .preset_guid(preset_guid)
         .display_aspect_ratio(16, 9)
         .framerate(30, 1)
         .enable_picture_type_decision()
         .encode_config(&mut preset_config.presetCfg);
+    initialize_params.tuningInfo = tuning_info;
     let session = encoder
         .start_session(buffer_format, initialize_params)
         .expect("Encoder should be initialized correctly.");
@@ -238,7 +241,7 @@ fn main() {
 
         // Import file descriptor using CUDA.
         let external_memory = unsafe {
-            cuda_device.import_external_memory(file_descriptor, (WIDTH * HEIGHT * 4) as u64)
+            cuda_ctx.import_external_memory(file_descriptor, (WIDTH * HEIGHT * 4) as u64)
         }
         .expect("File descriptor should be valid for importing.");
         let mapped_buffer = external_memory
