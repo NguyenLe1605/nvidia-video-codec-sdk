@@ -31,7 +31,7 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: doc
-          args: --features ci-check --no-deps
+          args: --no-deps
       - shell: sh
         run: |
           chmod -c -R +rX "target/doc" |
