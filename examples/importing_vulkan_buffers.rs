@@ -7,31 +7,20 @@ use std::{
 use cudarc::driver::CudaContext;
 use nvidia_video_codec_sdk::{
     sys::nvEncodeAPI::{
-        NV_ENC_BUFFER_FORMAT::NV_ENC_BUFFER_FORMAT_ARGB,
-        NV_ENC_CODEC_H264_GUID,
-        NV_ENC_H264_PROFILE_HIGH_GUID,
-        NV_ENC_INITIALIZE_PARAMS,
-        NV_ENC_PRESET_P7_GUID,
+        NV_ENC_BUFFER_FORMAT::NV_ENC_BUFFER_FORMAT_ARGB, NV_ENC_CODEC_H264_GUID,
+        NV_ENC_H264_PROFILE_HIGH_GUID, NV_ENC_INITIALIZE_PARAMS, NV_ENC_PRESET_P7_GUID,
         NV_ENC_TUNING_INFO,
     },
     Encoder,
 };
 use vulkano::{
     device::{
-        physical::PhysicalDeviceType,
-        Device,
-        DeviceCreateInfo,
-        DeviceExtensions,
-        QueueCreateInfo,
+        physical::PhysicalDeviceType, Device, DeviceCreateInfo, DeviceExtensions, QueueCreateInfo,
     },
     instance::{Instance, InstanceCreateInfo},
     memory::{
-        DeviceMemory,
-        ExternalMemoryHandleType,
-        ExternalMemoryHandleTypes,
-        MappedDeviceMemory,
-        MemoryAllocateInfo,
-        MemoryPropertyFlags,
+        DeviceMemory, ExternalMemoryHandleType, ExternalMemoryHandleTypes, MappedDeviceMemory,
+        MemoryAllocateInfo, MemoryPropertyFlags,
     },
     VulkanLibrary,
 };
@@ -118,14 +107,17 @@ fn initialize_vulkan() -> (Arc<Device>, u32) {
         );
 
     // Create a Vulkan device.
-    let (vulkan_device, _queues) = Device::new(physical_device, DeviceCreateInfo {
-        queue_create_infos: vec![QueueCreateInfo::default()],
-        enabled_extensions: DeviceExtensions {
-            khr_external_memory_fd: true,
+    let (vulkan_device, _queues) = Device::new(
+        physical_device,
+        DeviceCreateInfo {
+            queue_create_infos: vec![QueueCreateInfo::default()],
+            enabled_extensions: DeviceExtensions {
+                khr_external_memory_fd: true,
+                ..Default::default()
+            },
             ..Default::default()
         },
-        ..Default::default()
-    })
+    )
     .expect(
         "Vulkan should be installed correctly and `Device` should support `khr_external_memory_fd`",
     );
@@ -307,12 +299,15 @@ fn create_buffer(
     let size = (width * height * 4) as u64;
 
     // Allocate memory with Vulkan.
-    let memory = DeviceMemory::allocate(vulkan_device, MemoryAllocateInfo {
-        allocation_size: size,
-        memory_type_index,
-        export_handle_types: ExternalMemoryHandleTypes::OPAQUE_FD,
-        ..Default::default()
-    })
+    let memory = DeviceMemory::allocate(
+        vulkan_device,
+        MemoryAllocateInfo {
+            allocation_size: size,
+            memory_type_index,
+            export_handle_types: ExternalMemoryHandleTypes::OPAQUE_FD,
+            ..Default::default()
+        },
+    )
     .expect("There should be space to allocate vulkan memory on the device");
 
     // Map and write to the memory.
