@@ -494,7 +494,7 @@ impl Bitstream<'_> {
         self.lock_inner(false)
     }
 
-    fn lock_inner(&mut self, wait: bool) -> Result<BitstreamLock, EncodeError> {
+    fn lock_inner(&mut self, wait: bool) -> Result<BitstreamLock<'_, '_>, EncodeError> {
         // Lock bitstream.
         let mut lock_bitstream_buffer_params = NV_ENC_LOCK_BITSTREAM {
             version: NV_ENC_LOCK_BITSTREAM_VER,
